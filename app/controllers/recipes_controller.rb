@@ -1,9 +1,11 @@
-class RecipesController < ApplicationController
-  before_action :set_recipe, only: [:show, :update, :destroy]
+# frozen_string_literal: true
+
+class RecipesController < ProtectedController
+  before_action :set_recipe, only: %i[show update destroy]
 
   # GET /recipes
   def index
-    @recipes = Recipe.all
+    @recipes = current_user.recipes
 
     render json: @recipes
   end
@@ -15,7 +17,7 @@ class RecipesController < ApplicationController
 
   # POST /recipes
   def create
-    @recipe = Recipe.new(recipe_params)
+    @recipe = current_user.recipes.build(recipe_params)
 
     if @recipe.save
       render json: @recipe, status: :created, location: @recipe
@@ -36,16 +38,20 @@ class RecipesController < ApplicationController
   # DELETE /recipes/1
   def destroy
     @recipe.destroy
+    head :no_content
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_recipe
-      @recipe = Recipe.find(params[:id])
-    end
 
-    # Only allow a trusted parameter "white list" through.
-    def recipe_params
-      params.require(:recipe).permit(:title, :time, :servings, :ingredients, :instructions)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_recipe
+    @recipe = current_user.recipes.find(params[:id])
+  end
+
+  # Only allow a trusted parameter "white list" through.
+  def recipe_params
+    params.require(:recipe).permit(
+      :title, :time, :servings, :ingredients, :instructions
+    )
+  end
 end
