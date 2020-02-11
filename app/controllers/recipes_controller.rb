@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-class RecipesController < ProtectedController
+class RecipesController < OpenReadController
   before_action :set_recipe, only: %i[show update destroy]
 
   # GET /recipes
   def index
-    @recipes = current_user.recipes
+    @recipes = Recipes.all
 
     render json: @recipes
   end
